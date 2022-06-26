@@ -1,0 +1,50 @@
+﻿<Window x:Class="B4X_conflict_fixer.GroupConflictWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:B4X_conflict_fixer"
+        mc:Ignorable="d"
+        Height="330" Width="321" ResizeMode="NoResize" SizeToContent="Height">
+
+	<Window.DataContext>
+		<local:GroupConflictViewModel/>
+	</Window.DataContext>
+
+	<Grid Margin="0,0,0,0">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Text set in code -->
+		<TextBlock x:Name="lblTitle" Margin="15,5,15,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Left">
+			The module group that 'Main' belongs to is in conflict!<LineBreak/>
+			Please select which group you would like to assign the 'Main' module to:
+		</TextBlock>
+
+		<ListView x:Name="groupListView" ItemsSource="{Binding Path=ListItems}" VerticalAlignment="Top" Height="102" Margin="10,5,10,0" Grid.Row="1" HorizontalContentAlignment="Stretch" SelectionMode="Single">
+			<!-- Disable list item selection because it gets out of sync with the radio buttons if you click in the very corners of the list item -->
+			<!-- This problem could be solved with more binding magic, but it's really not that important and it's more trouble than it's worth-->
+			<ListView.ItemContainerStyle>
+				<Style TargetType="ListViewItem">
+					<Setter Property="Focusable" Value="False"/>
+				</Style>
+			</ListView.ItemContainerStyle>
+
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<RadioButton x:Name="rbGroup" IsChecked="{Binding Path=Selected}" Content="{Binding Path=Text}" GroupName="rbGroup" Height="16"/>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+		
+		<Label Content="OR" HorizontalAlignment="Left" Margin="10,113,0,0" Padding="0,0,0,0" VerticalAlignment="Top" Grid.Row="1" Height="16" Width="16"/>
+		<RadioButton x:Name="rbCustomGroup" Content="Custom group:" GroupName="rbGroup" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" Grid.Row="1" Height="16" Width="98"/>
+		<TextBox x:Name="txtCustomGroup" Margin="10,155,10,10" TextWrapping="Wrap" VerticalAlignment="Top" GotFocus="TxtCustomGroup_GotFocus" Grid.Row="1" Height="18"/>
+
+		<Button x:Name="btnCancel" Content="Cancel" IsCancel="True" HorizontalAlignment="Left" Margin="15,0,0,15" VerticalAlignment="Bottom" Height="53" Width="100" Grid.Row="2" />
+		<Button x:Name="btnOk" Content="OK" IsDefault="True" HorizontalAlignment="Right" Margin="0,0,15,15" VerticalAlignment="Bottom" Height="53" Width="100" Click="SaveGroupSelection" Grid.Row="2"/>
+	</Grid>
+</Window>
