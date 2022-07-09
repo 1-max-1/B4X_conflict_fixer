@@ -14,14 +14,14 @@ This tool will fix the following:
 - `Group` conflicts
 - `Library` conflicts
 - `B4X Version` conflicts
+- `Manifest` conflicts
 
 ##### In progress:
 - `Build` conflicts
-- `Manifest` conflicts
 
 ## Usage
 Download the latest release from the [releases](https://github.com/1-max-1/B4X_conflict_fixer/releases/latest) page, and run `B4X_conflict_fixer.exe`.<br/>
 Enter the path to your B4X project file and click "Fix Conflicts". Easy.
 
 #### Note
-Because I'm not affiliated with [github copilot](https://github.com/features/copilot/), this tool only fixes conflicts in the file header. Any code conflicts will need to be fixed manually by you.
+Because I'm not an all powerfull AI programmer, this tool only fixes conflicts in the file header. Any code conflicts will need to be fixed manually by you.
