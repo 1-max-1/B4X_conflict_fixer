@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MessageBox" SizeToContent="WidthAndHeight" MaxWidth="450" ResizeMode="NoResize">
+        Title="MessageBox" SizeToContent="WidthAndHeight" MaxWidth="450" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
 	
 	<Grid>
 		<TextBlock x:Name="lblContent" Text="Label" HorizontalAlignment="Stretch" Margin="10,10,10,70" VerticalAlignment="Stretch" FontSize="17" TextWrapping="Wrap"/>
