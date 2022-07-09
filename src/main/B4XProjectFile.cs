@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace B4X_conflict_fixer {
 	class B4XProjectFile {
@@ -188,17 +189,67 @@ namespace B4X_conflict_fixer {
 			}
 		}
 
-		private void FixManifestConflicts() {
-			mManifest = mFileHeader.Find(line => line.StartsWith("ManifestCode="))[13..];
+		private void RemoveFiles(string[] files) {
+			foreach (string file in files) {
+				if (File.Exists(file))
+					File.Delete(file);
+			}
+		}
+
+		/// <summary>
+		/// If there are manifest conflicts, this functoin will attempt to merge them. The ones that cannot be merged iwll be shown to the user for them to resolve manually.
+		/// </summary>
+		/// <returns><see langword="false"/> if the user cancelled, <see langword="true"/> otherwise.</returns>
+		private bool FixManifestConflicts() {
+			List<string> lines = mFileHeader.FindAll(line => line.StartsWith("ManifestCode="));
+			// If there is more than one manifest line there is a conflict
+			if (lines.Count > 1) {
+				// Create temp files for git to merge
+				string file1 = Path.GetTempFileName();
+				string file2 = Path.GetTempFileName();
+				string emptyFile = Path.GetTempFileName(); // Empty file for common ancestor
+				File.WriteAllText(file1, lines[0][13..].Replace("~\\n~", "\r\n"));
+				File.WriteAllText(file2, lines[1][13..].Replace("~\\n~", "\r\n"));
+
+				try {
+					// Use Git to merge the two files, using the emptty file as a common ancestor
+					// The merged data will be written to file1
+					Process.Start(new ProcessStartInfo() { FileName = "git", Arguments = $"merge-file {file1} {emptyFile} {file2}", CreateNoWindow = true }).WaitForExit();
+				}
+				catch (Exception) {
+					RemoveFiles(new string[] { file1, file2, emptyFile });
+					InfoMessageBox.Show(MainWindow.CurrentInstance, "Git not installed. Cannot fix manifest conflicts.", "Error", "Abort");
+					return false;
+				}
+				
+				string mergedManifest = File.ReadAllText(file1);
+				// Look for git merge conflict marker
+				if (mergedManifest.Contains($"<<<<<<< {file1}")) {
+					var dialog = new ManifestConflictDialog(lines[0][13..].Replace("~\\n~", "\r\n"), lines[1][13..].Replace("~\\n~", "\r\n"), file1);
+					bool dialogResult = dialog.ShowDialog() ?? false;
+					RemoveFiles(new string[] { file1, file2, emptyFile });
+					if (!dialogResult) return false;
+
+					mManifest = dialog.manifestContent.Replace("\r\n", "~\\n~").Replace("\n", "~\\n~");
+				}
+				// Otherwise the git merge was succesfull
+				else {
+					mManifest = mergedManifest.Replace("\r\n", "~\\n~").Replace("\n", "~\\n~");
+				}
+			}
+			else {
+				mManifest = lines[0][13..];
+			}
+
+			return true;
 		}
 
 		// Bump version to the highest version if there are conflicts
 		private void FixProductVersionConflicts() {
-			string s = "Version=11.5"[8..];
 			List<float> versions = mFileHeader.FindAll(s => s.StartsWith("Version=")).ConvertAll(s => Convert.ToSingle(s[8..]));
 			mProductVersion = versions.Max();
 			if (versions.Count > 1) {
-				System.Windows.MessageBox.Show($"There were B4X product version conflicts.\nThe version for this project has been bumped to {mProductVersion}.\nPlease check your B4X product version and update B4X if necessary");
+				InfoMessageBox.Show(MainWindow.CurrentInstance, $"The version for this project has been bumped to {mProductVersion}.\nPlease check your B4X product version and update B4X if necessary.", "B4X product version conflicts");
 			}
 		}
 
@@ -210,6 +261,7 @@ namespace B4X_conflict_fixer {
 			}
 		}
 
+		// Writes all of the fixed info to the project file
 		private async Task Save() {
 			List<string> lines = new List<string> { "Group=" + mModuleGroup, "ManifestCode=" + mManifest };
 			AddCategoryToOutputList("Build", mBuilds, lines);

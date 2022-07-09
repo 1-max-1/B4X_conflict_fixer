@@ -1,0 +1,30 @@
+﻿<Window x:Class="B4X_conflict_fixer.ManifestConflictDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:diffplex="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+        mc:Ignorable="d"
+        Title="Manifest Conflict" Height="500" Width="1000" Loaded="Window_Loaded">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<diffplex:DiffViewer x:Name="DiffView" OldTextHeader="Old" NewTextHeader="New" HeaderForeground="#808080" IgnoreUnchanged="False" LinesContext="2" />
+
+		<Button x:Name="btnCancel" Content="Cancel" IsCancel="True" HorizontalAlignment="Left" Margin="15,15,0,15" VerticalAlignment="Bottom" Height="53" Width="100" Grid.Row="1" />
+
+		<Label Content="External Editor:" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,415,0"/>
+		<ComboBox Name="externalEditor" HorizontalAlignment="Right" Margin="0,0,275,0" Grid.Row="1" VerticalAlignment="Center" Width="135">
+			<ComboBoxItem Content="Notepad++" IsSelected="True" />
+			<ComboBoxItem Content="Notepad" />
+			<ComboBoxItem Content="Visual Studio Code" />
+		</ComboBox>
+
+		<Button x:Name="btnOpenManifest" Content="Open manifest" HorizontalAlignment="Right" Margin="0,15,135,15" VerticalAlignment="Bottom" Height="53" Width="100" Click="OpenManifest" Grid.Row="1" />
+		<Button x:Name="btnOk" Content="OK" IsDefault="True" HorizontalAlignment="Right" Margin="0,15,15,15" VerticalAlignment="Bottom" Height="53" Width="100" Click="Done" Grid.Row="1" />
+	</Grid>
+</Window>
