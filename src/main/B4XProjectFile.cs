@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Text;
 
 namespace B4X_conflict_fixer {
 	class B4XProjectFile {
@@ -276,8 +277,9 @@ namespace B4X_conflict_fixer {
 			lines.Add($"Version={mProductVersion}");
 
 			string backupFile = mFilePath.Insert(mFilePath.LastIndexOf('.') + 1, "backup.");
-			File.WriteAllText(backupFile, await File.ReadAllTextAsync(mFilePath));
-			await File.WriteAllLinesAsync(mFilePath, lines.Concat(mB4XCode));
+			File.WriteAllBytes(backupFile, await File.ReadAllBytesAsync(mFilePath));
+			// B4X uses UTF8-BOM encoding
+			await File.WriteAllLinesAsync(mFilePath, lines.Concat(mB4XCode), new UTF8Encoding(true));
 			File.Delete(backupFile);
 		}
 	}
