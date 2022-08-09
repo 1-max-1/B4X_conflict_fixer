@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace B4X_conflict_fixer {
 		// Key is filename, value is filegroup
 		private readonly Dictionary<string, string> mFiles = new Dictionary<string, string>();
 
-		private readonly HashSet<string> mBuilds = new HashSet<string>();
+		private HashSet<string> mBuilds = new HashSet<string>();
 		private readonly HashSet<string> mLibraries = new HashSet<string>();
 		private readonly HashSet<string> mModules = new HashSet<string>();
 
@@ -184,10 +185,22 @@ namespace B4X_conflict_fixer {
 			}
 		}
 
-		private void FixBuildConflicts() {
+		private bool FixBuildConflicts() {
+			// Parse existing builds into list
 			foreach (string line in mFileHeader.FindAll(s => s.StartsWith("Build"))) {
 				mBuilds.Add(line[(line.IndexOf('=') + 1)..]);
 			}
+
+			// If there are conflict markers around at least one build then there are build conflicts.
+			// Open conflict fixing dialog.
+			if (Regex.IsMatch(string.Join('\n', mFileHeader), "<<<<<<<.*Build\\d+=.*=======", RegexOptions.Singleline)) {
+				BuildSelectionDialog dialog = new BuildSelectionDialog(mBuilds);
+				bool dialogResult = dialog.ShowDialog() ?? false;
+				if (!dialogResult) return false;
+				mBuilds = dialog.FinalBuildConfigs;
+			}
+
+			return true;
 		}
 
 		private void RemoveFiles(string[] files) {
@@ -198,7 +211,7 @@ namespace B4X_conflict_fixer {
 		}
 
 		/// <summary>
-		/// If there are manifest conflicts, this functoin will attempt to merge them. The ones that cannot be merged iwll be shown to the user for them to resolve manually.
+		/// If there are manifest conflicts, this function will attempt to merge them. The ones that cannot be merged iwll be shown to the user for them to resolve manually.
 		/// </summary>
 		/// <returns><see langword="false"/> if the user cancelled, <see langword="true"/> otherwise.</returns>
 		private bool FixManifestConflicts() {
@@ -213,7 +226,7 @@ namespace B4X_conflict_fixer {
 				File.WriteAllText(file2, lines[1][13..].Replace("~\\n~", "\r\n"));
 
 				try {
-					// Use Git to merge the two files, using the emptty file as a common ancestor
+					// Use Git to merge the two files, using the empty file as a common ancestor
 					// The merged data will be written to file1
 					Process.Start(new ProcessStartInfo() { FileName = "git", Arguments = $"merge-file {file1} {emptyFile} {file2}", CreateNoWindow = true }).WaitForExit();
 				}

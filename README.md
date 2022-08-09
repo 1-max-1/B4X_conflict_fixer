@@ -15,8 +15,6 @@ This tool will fix the following:
 - `Library` conflicts
 - `B4X Version` conflicts
 - `Manifest` conflicts
-
-##### In progress:
 - `Build` conflicts
 
 ## Usage

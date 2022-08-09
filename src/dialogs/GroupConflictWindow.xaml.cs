@@ -35,7 +35,7 @@ namespace B4X_conflict_fixer {
 			}
 
 			foreach (string group in groups) {
-				((GroupConflictViewModel)DataContext).ListItems.Add(new GroupConflictViewModel.ListItem(group));
+				((GroupConflictViewModel)DataContext).ListItems.Add(new GroupConflictListItem(group, false));
 			}
 			((GroupConflictViewModel)DataContext).ListItems[0].Selected = true;
 		}

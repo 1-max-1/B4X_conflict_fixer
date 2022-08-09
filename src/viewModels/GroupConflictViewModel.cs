@@ -5,20 +5,10 @@ namespace B4X_conflict_fixer {
 	/// View Model for the group conflict window data
 	/// </summary>
 	public class GroupConflictViewModel {
-		public class ListItem {
-			public ListItem(string text) {
-				Selected = false;
-				Text = text;
-			}
-
-			public bool Selected { get; set; }
-			public string Text { get; }
-		}
-
-		public List<ListItem> ListItems { get; }
+		public List<GroupConflictListItem> ListItems { get; }
 
 		public GroupConflictViewModel() {
-			ListItems = new List<ListItem>();
+			ListItems = new List<GroupConflictListItem>();
 		}
 
 		public string GetSelectedGroup() {

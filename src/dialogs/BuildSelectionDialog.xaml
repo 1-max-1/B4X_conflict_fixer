@@ -1,0 +1,45 @@
+﻿<Window x:Class="B4X_conflict_fixer.BuildSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:B4X_conflict_fixer"
+        mc:Ignorable="d"
+        Title="Build Selection" Height="343" Width="577" ResizeMode="NoResize">
+
+	<Window.DataContext>
+		<local:BuildConflictViewModel/>
+	</Window.DataContext>
+
+	<Grid>
+		<TextBlock x:Name="lblTitle" Margin="15,5,15,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Left">
+			There are conflicts between build configurations. <LineBreak/>
+			Please select the configurations you would like to keep and make any required changes to them.
+		</TextBlock>
+
+		<ListView x:Name="buildConfigListView" ItemsSource="{Binding Path=ListItems}" VerticalAlignment="Top" Height="125" Margin="10,60,0,0" HorizontalContentAlignment="Stretch" SelectionMode="Single" HorizontalAlignment="Left" Width="300">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Orientation="Horizontal" Height="16">
+						<CheckBox x:Name="chkBuildName" IsChecked="{Binding Path=Selected, Mode=TwoWay}" Width="16" HorizontalAlignment="Left"/>
+						<TextBlock Text="{Binding Path=BuildName, Mode=OneWay}" VerticalAlignment="Stretch" Margin="5,0,0,0" Padding="0,0,0,0" TextAlignment="Center" FontSize="11" TextWrapping="NoWrap" />
+					</StackPanel>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+
+		<Button x:Name="btnAddBuildConfig" Content="(+) Add new build configuration" HorizontalAlignment="Left" Margin="10,195,0,0" Padding="3,3,3,3" VerticalAlignment="Top" Click="AddNewBuildConfig" />
+
+		<Label Content="Configuration name:" HorizontalAlignment="Left" Margin="320,60,0,0" Padding="0,0,0,0" VerticalAlignment="Top"/>
+		<TextBox Margin="320,78,10,0" Text="{Binding ElementName=buildConfigListView, Path=SelectedItem.(local:BuildConflictListItem.BuildName)}" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+		<Label Content="Package name:" HorizontalAlignment="Left" Margin="320,102,0,0" Padding="0,0,0,0" VerticalAlignment="Top"/>
+		<TextBox Margin="320,120,10,0" Text="{Binding ElementName=buildConfigListView, Path=SelectedItem.(local:BuildConflictListItem.PackageName)}" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+		<Label Content="Conditional symbols:" HorizontalAlignment="Left" Margin="320,146,0,0" Padding="0,0,0,0" VerticalAlignment="Top"/>
+		<TextBox Margin="320,166,10,0" Text="{Binding ElementName=buildConfigListView, Path=SelectedItem.(local:BuildConflictListItem.ConditionalSymbols)}" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+		<Button x:Name="btnCancel" Content="Cancel" IsCancel="True" HorizontalAlignment="Left" Margin="15,0,0,15" VerticalAlignment="Bottom" Height="53" Width="100" />
+		<Button x:Name="btnOk" Content="OK" IsDefault="True" HorizontalAlignment="Right" Margin="0,0,15,15" VerticalAlignment="Bottom" Height="53" Width="100" Click="Done" />
+	</Grid>
+</Window>
