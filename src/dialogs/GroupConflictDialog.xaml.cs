@@ -5,7 +5,7 @@ namespace B4X_conflict_fixer {
 	/// <summary>
 	/// A dialog to help the user solve conflicts with module and file groups.
 	/// </summary>
-	public partial class GroupConflictWindow : Window {
+	public partial class GroupConflictDialog : Window {
 		public enum GroupTypes {
 			TYPE_MODULE_GROUP,
 			TYPE_FILE_GROUP
@@ -22,7 +22,7 @@ namespace B4X_conflict_fixer {
 		/// <param name="groups">The group names to be displayed in the list</param>
 		/// <param name="groupTypes">The type of group conflict - module or file</param>
 		/// <param name="filename">If group type is set to file, pass the name of the conflicted file</param>
-		public GroupConflictWindow(HashSet<string> groups, GroupTypes groupTypes, string filename = null) {
+		public GroupConflictDialog(HashSet<string> groups, GroupTypes groupTypes, string filename = null) {
 			InitializeComponent();
 
 			if (groupTypes == GroupTypes.TYPE_FILE_GROUP) {
