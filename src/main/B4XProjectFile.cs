@@ -10,12 +10,15 @@ using System.Text;
 namespace B4X_conflict_fixer {
 	class B4XProjectFile {
 		private string mFilePath;
+
+		// The project file can be split into 2 parts: the header, which contains the project information,
+		// and the B4X code itself, which is what the user sees when opening the porject in B4X.
 		private List<string> mFileHeader;
 		private List<string> mB4XCode;
 
-		private float mProductVersion;
+		private float mProductVersion; // B4X version
 
-		private string mModuleGroup;
+		private string mModuleGroup; // The name of the group that the 'Main' module belongs
 		private string mManifest;
 
 		// Stores the list of file groups for each file number, BEFORE any conflicts have been resolved.
@@ -32,7 +35,12 @@ namespace B4X_conflict_fixer {
 			return input.Replace("\n", "").Replace("\r", "");
 		}
 
-		public async Task FixConflicts(string projectFile) {
+		/// <summary>
+		/// Fixes any conflicts in the project file.
+		/// </summary>
+		/// <param name="projectFile">Path to the B4X project file</param>
+		/// <returns><see langword="true"/> if conflicts were fixed, <see langword="false"/> if the user cancelled at any stage.</returns>
+		public async Task<bool> LoadAndFixConflicts(string projectFile) {
 			mFilePath = projectFile;
 
 			// Everything past @EndOfDesignText@ is regular B4X code, let the user fix code conflicts themselves.
@@ -41,15 +49,16 @@ namespace B4X_conflict_fixer {
 			mFileHeader = fileLines.GetRange(0, lineCount);
 			mB4XCode = fileLines.GetRange(lineCount, fileLines.Count - lineCount);
 
-			FixModuleGroupConflicts();
+			if (!FixModuleGroupConflicts()) return false;
 			ParseAllFileGroups();
-			FixFileConflicts();
+			if (!FixFileConflicts()) return false;
 			FixLibAndModuleConflicts();
-			FixBuildConflicts();
-			FixManifestConflicts();
+			if (!FixBuildConflicts()) return false;
+			if (!FixManifestConflicts()) return false;
 			FixProductVersionConflicts();
 
 			await Save();
+			return true;
 		}
 
 		/// <summary>
@@ -64,7 +73,7 @@ namespace B4X_conflict_fixer {
 		private bool FixModuleGroupConflicts() {
 			bool result = true;
 
-			// Parse the module group name out of the line then convert to a set so we remove duplicate module groups
+			// Parse the module group name out of the line then convert to a set to remove duplicate module groups
 			List<string> groupLines = mFileHeader.FindAll(line => line.StartsWith("Group="));
 			for (int i = 0; i < groupLines.Count; i++)
 				groupLines[i] = StripNewline(groupLines[i][6..]);
@@ -72,7 +81,7 @@ namespace B4X_conflict_fixer {
 			
 			// There should only be one unique 'Group' line. If there are 2, then there is a git conflict between them
 			if (groupLines.Count > 1) {
-				var dialog = new GroupConflictWindow(moduleGroups, GroupConflictWindow.GroupTypes.TYPE_MODULE_GROUP) {
+				var dialog = new GroupConflictDialog(moduleGroups, GroupConflictDialog.GroupTypes.TYPE_MODULE_GROUP) {
 					Owner = MainWindow.CurrentInstance
 				};
 				result = dialog.ShowDialog() ?? false;
@@ -118,7 +127,8 @@ namespace B4X_conflict_fixer {
 			List<string> fileLines = mFileHeader.FindAll(line => line.StartsWith("File") && !line.StartsWith("FileGroup"));
 			foreach (string line in fileLines) {
 				string filename = StripNewline(line[(line.IndexOf('=') + 1)..]);
-				// If we have this file stored already then we have already processed all occurences and conflicts so don't do anything else with it.
+				// If we have this file stored already then this is a duplicate record.
+				// We have already processed all occurences and conflicts so don't do anything else with it.
 				if (mFiles.ContainsKey(filename)) continue;
 
 				// Check if this file exists in the B4X projects files folder.
@@ -140,7 +150,7 @@ namespace B4X_conflict_fixer {
 
 				// If this filename has multiple possible filegroups, then there is a git conflict
 				if (groupsForThisFilename.Count > 1) {
-					var dialog = new GroupConflictWindow(groupsForThisFilename, GroupConflictWindow.GroupTypes.TYPE_FILE_GROUP, filename) {
+					var dialog = new GroupConflictDialog(groupsForThisFilename, GroupConflictDialog.GroupTypes.TYPE_FILE_GROUP, filename) {
 						Owner = MainWindow.CurrentInstance
 					};
 					if (!dialog.ShowDialog() ?? false) return false;

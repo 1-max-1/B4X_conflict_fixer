@@ -32,19 +32,20 @@ namespace B4X_conflict_fixer {
 				InfoMessageBox.Show(this, "Please select a valid B4X project file!", "Error", "Oops");
 			}
 			else {
-				// TODO: custom message boxes
 				InfoMessageBox.Show(this, "To prevent further conflicts, please save and close all open B4X programs related to this project before continuing.", "Note", "Continue");
 
 				btnFixConflict.IsEnabled = false;
 				btnFixConflict.Content = "Fixing...";
 
 				B4XProjectFile conflictFixer = new B4XProjectFile();
-				await conflictFixer.FixConflicts(projectFile.Replace('/', '\\'));
+				bool allConflictsFixed = await conflictFixer.LoadAndFixConflicts(projectFile.Replace('/', '\\'));
 
 				btnFixConflict.IsEnabled = true;
 				btnFixConflict.Content = "Fix conflict";
 
-				InfoMessageBox.Show(this, "File header conflicts have been fixed.\nYou will need to fix any code conflicts manually.", "Success!", "Done");
+				// If user cancelled don't show message
+				if (allConflictsFixed)
+					InfoMessageBox.Show(this, "File header conflicts have been fixed.\nYou will need to fix any code conflicts manually.", "Success!", "Done");
 			}
 		}
 	}
