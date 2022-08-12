@@ -298,6 +298,7 @@ namespace B4X_conflict_fixer {
 			lines.Add($"NumberOfLibraries={mLibraries.Count}");
 			lines.Add($"NumberOfModules={mModules.Count}");
 			lines.Add($"Version={mProductVersion}");
+			lines.Sort();
 
 			string backupFile = mFilePath.Insert(mFilePath.LastIndexOf('.') + 1, "backup.");
 			File.WriteAllBytes(backupFile, await File.ReadAllBytesAsync(mFilePath));
