@@ -35,7 +35,9 @@
 
 			<ListView.ItemTemplate>
 				<DataTemplate>
-					<RadioButton x:Name="rbGroup" IsChecked="{Binding Path=Selected}" Content="{Binding Path=Text}" GroupName="rbGroup" Height="16"/>
+					<RadioButton x:Name="rbGroup" IsChecked="{Binding Path=Selected}" GroupName="rbGroup" Height="16">
+						<TextBlock Text="{Binding Path=Text}" TextAlignment="Center" FontSize="11" TextWrapping="NoWrap" />
+					</RadioButton>
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
