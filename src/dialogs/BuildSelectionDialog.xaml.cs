@@ -58,7 +58,7 @@ namespace B4X_conflict_fixer {
 		private bool IsBuildConfigValid(BuildConflictListItem build, out string reasonForInvalidity) {
 			bool c1 = Regex.IsMatch(build.BuildName, "^[a-zA-Z0-9_]+$"); // Alphanumeric and underscore
 			// No duplicate names
-			bool c2 = ((BuildConflictViewModel)DataContext).ListItems.Count(b => b.BuildName == build.BuildName) == 1;
+			bool c2 = ((BuildConflictViewModel)DataContext).ListItems.Count(b => b.Selected && b.BuildName == build.BuildName) == 1;
 			// Alphanumeric and underscore, must be at least 2 components seperated by a dot, start of package names cannot be numeric or underscore.
 			bool c3 = Regex.IsMatch(build.PackageName, "^[a-zA-Z][a-zA-Z0-9_]*(?:\\.[a-zA-Z][a-zA-Z0-9_]*)+$");
 			// Must only contain alphanumeric, underscore, comma and space. Whitespace cannot occur in the middle of a build symbol.
